@@ -1,13 +1,13 @@
 language: node_js
 node_js:
   - 10
-  - 8
+#  - 8
   - 11
 stages:
-  - lint
-  - test
-  - integration
-  - e2e
+#  - lint
+#  - test
+#  - integration
+#  - e2e
   - deploy
 branches:
   except:
