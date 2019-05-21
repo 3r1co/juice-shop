@@ -1,6 +1,11 @@
+dist: trusty
 language: node_js
 node_js:
   - 11
+
+addons:
+  sonarcloud:
+    organization: "3r1co-github"
 
 env:
  - IMAGE_NAME=868894423383.dkr.ecr.eu-west-1.amazonaws.com/juice-shop:1.0-$TRAVIS_BUILD_NUMBER
@@ -8,7 +13,8 @@ services:
   - docker
 
 script:
-  - echo 'Use Docker!'
+  - npm test
+  - sonar-scanner -Dsonar.javascript.lcov.reportPaths=./build/reports/coverage/server-tests/lcov.info
 
 after_success:
   - pip install --user awscli
