@@ -18,7 +18,7 @@ install: true
 
 before_script:
   - mkdir -p $HOME/bin
-  - wget https://bintray.com/jeremy-long/owasp/download_file?file_path=dependency-check-5.0.0-M3-release.zip -O $HOME/bin/dc.zip
+  - wget https://bintray.com/jeremy-long/owasp/download_file?file_path=dependency-check-4.0.2-release.zip -O $HOME/bin/dc.zip
   - cd $HOME/bin/ && unzip dc.zip
   - cd -
 script:
