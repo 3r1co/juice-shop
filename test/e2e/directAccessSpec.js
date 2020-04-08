@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 const config = require('config')
 const utils = require('../../lib/utils')
 let blueprint
@@ -15,7 +20,7 @@ describe('/', () => {
       browser.driver.get(browser.baseUrl + '/the/devs/are/so/funny/they/hid/an/easter/egg/within/the/easter/egg')
     })
 
-    protractor.expect.challengeSolved({ challenge: 'Easter Egg Tier 2' })
+    protractor.expect.challengeSolved({ challenge: 'Nested Easter Egg' })
   })
 
   describe('challenge "premiumPaywall"', () => {
@@ -31,7 +36,7 @@ describe('/', () => {
       browser.driver.get(browser.baseUrl + '/we/may/also/instruct/you/to/refuse/all/reasonably/necessary/responsibility')
     })
 
-    protractor.expect.challengeSolved({ challenge: 'Privacy Policy Tier 2' })
+    protractor.expect.challengeSolved({ challenge: 'Privacy Policy Inspection' })
   })
 
   describe('challenge "extraLanguage"', () => {
@@ -48,6 +53,14 @@ describe('/', () => {
     })
 
     protractor.expect.challengeSolved({ challenge: 'Retrieve Blueprint' })
+  })
+
+  describe('challenge "missingEncoding"', () => {
+    it('should be able to access the crazy cat photo', () => {
+      browser.driver.get(browser.baseUrl + '/assets/public/images/uploads/%F0%9F%98%BC-%23zatschi-%23whoneedsfourlegs-1572600969477.jpg')
+    })
+
+    protractor.expect.challengeSolved({ challenge: 'Missing Encoding' })
   })
 
   describe('challenge "securityPolicy"', () => {

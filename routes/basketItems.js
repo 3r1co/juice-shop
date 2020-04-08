@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 const utils = require('../lib/utils')
 const challenges = require('../data/datacache').challenges
 const insecurity = require('../lib/insecurity')
 const models = require('../models/index')
 
-module.exports = function addBasketItem () {
+module.exports.addBasketItem = function addBasketItem () {
   return (req, res, next) => {
     var result = utils.parseJsonCustom(req.rawBody)
     var productIds = []
@@ -29,12 +34,7 @@ module.exports = function addBasketItem () {
         BasketId: basketIds[basketIds.length - 1],
         quantity: quantities[quantities.length - 1]
       }
-
-      if (utils.notSolved(challenges.basketManipulateChallenge)) {
-        if (user && basketItem.BasketId && basketItem.BasketId !== 'undefined' && user.bid != basketItem.BasketId) { // eslint-disable-line eqeqeq
-          utils.solve(challenges.basketManipulateChallenge)
-        }
-      }
+      utils.solveIf(challenges.basketManipulateChallenge, () => { return user && basketItem.BasketId && basketItem.BasketId !== 'undefined' && user.bid != basketItem.BasketId }) // eslint-disable-line eqeqeq
 
       const basketItemInstance = models.BasketItem.build(basketItem)
       basketItemInstance.save().then((basketItem) => {
@@ -47,5 +47,43 @@ module.exports = function addBasketItem () {
         next(error)
       })
     }
+  }
+}
+
+module.exports.quantityCheckBeforeBasketItemAddition = function quantityCheckBeforeBasketItemAddition () {
+  return (req, res, next) => {
+    quantityCheck(req, res, next, req.body.ProductId, req.body.quantity)
+  }
+}
+
+module.exports.quantityCheckBeforeBasketItemUpdate = function quantityCheckBeforeBasketItemUpdate () {
+  return (req, res, next) => {
+    models.BasketItem.findOne({ where: { id: req.params.id } }).then((item) => {
+      if (req.body.quantity) {
+        quantityCheck(req, res, next, item.ProductId, req.body.quantity)
+      } else {
+        next()
+      }
+    }).catch(error => {
+      next(error)
+    })
+  }
+}
+
+async function quantityCheck (req, res, next, id, quantity) {
+  const record = await models.PurchaseQuantity.findOne({ where: { ProductId: id, UserId: req.body.UserId } })
+
+  const previousPurchase = record ? record.quantity : 0
+
+  const product = await models.Quantity.findOne({ where: { ProductId: id } })
+
+  if (!product.limitPerUser || (product.limitPerUser && (product.limitPerUser - previousPurchase) >= quantity) || insecurity.isDeluxe(req)) {
+    if (product.quantity >= quantity) {
+      next()
+    } else {
+      res.status(400).json({ error: res.__('We are out of stock! Sorry for the inconvenience.') })
+    }
+  } else {
+    res.status(400).json({ error: res.__('You can order only up to {{quantity}} items of this product.', { quantity: product.limitPerUser }) })
   }
 }

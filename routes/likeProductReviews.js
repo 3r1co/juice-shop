@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 const utils = require('../lib/utils')
 const challenges = require('../data/datacache').challenges
 const db = require('../data/mongodb')
@@ -12,7 +17,7 @@ module.exports = function productReviews () {
       if (!likedBy.includes(user.data.email)) {
         db.reviews.update(
           { _id: id },
-          { '$inc': { likesCount: 1 } }
+          { $inc: { likesCount: 1 } }
         ).then(
           result => {
             // Artificial wait for timing attack challenge
@@ -26,12 +31,10 @@ module.exports = function productReviews () {
                     count++
                   }
                 }
-                if (count > 2 && utils.notSolved(challenges.timingAttackChallenge)) {
-                  utils.solve(challenges.timingAttackChallenge)
-                }
+                utils.solveIf(challenges.timingAttackChallenge, () => { return count > 2 })
                 db.reviews.update(
                   { _id: id },
-                  { '$set': { likedBy: likedBy } }
+                  { $set: { likedBy: likedBy } }
                 ).then(
                   result => {
                     res.json(result)

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { environment } from '../../environments/environment'
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
@@ -16,7 +21,7 @@ export class ChallengeService {
     return this.http.get(this.host + '/', { params: params }).pipe(map((response: any) => response.data), catchError((err) => { throw err }))
   }
 
-  repeatNotification (challengeName) {
+  repeatNotification (challengeName: string) {
     return this.http.get(this.hostServer + '/rest/repeat-notification', { params: { challenge: challengeName } }).pipe(catchError((err) => { throw err }))
   }
 
@@ -24,7 +29,7 @@ export class ChallengeService {
     return this.http.get(this.hostServer + '/rest/continue-code').pipe(map((response: any) => response.continueCode),catchError((err) => { throw err }))
   }
 
-  restoreProgress (continueCode) {
+  restoreProgress (continueCode: string) {
     return this.http.put(this.hostServer + '/rest/continue-code/apply/' + continueCode, {}).pipe(map((response: any) => response.data), catchError((err) => { throw err }))
   }
 }

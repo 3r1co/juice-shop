@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { TwoFactorAuthEnterComponent } from './two-factor-auth-enter.component'
@@ -11,7 +16,7 @@ import { RouterTestingModule } from '@angular/router/testing'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
 import { TranslateModule } from '@ngx-translate/core'
-import { CookieService, CookieModule } from 'ngx-cookie'
+import { CookieService } from 'ngx-cookie-service'
 
 import { MatCardModule } from '@angular/material/card'
 import { MatFormFieldModule } from '@angular/material/form-field'
@@ -23,13 +28,16 @@ import { MatTableModule } from '@angular/material/table'
 import { MatPaginatorModule } from '@angular/material/paginator'
 import { MatDialogModule } from '@angular/material/dialog'
 import { MatDividerModule } from '@angular/material/divider'
+import { MatGridListModule } from '@angular/material/grid-list'
+import { MatSnackBarModule } from '@angular/material/snack-bar'
+import { MatTooltipModule } from '@angular/material/tooltip'
 
 import { of } from 'rxjs'
 
 describe('TwoFactorAuthEnterComponent', () => {
   let component: TwoFactorAuthEnterComponent
   let fixture: ComponentFixture<TwoFactorAuthEnterComponent>
-  let userService
+  let userService: any
 
   beforeEach(async(() => {
     userService = jasmine.createSpyObj('UserService', ['login'])
@@ -44,7 +52,6 @@ describe('TwoFactorAuthEnterComponent', () => {
           { path: 'search', component: SearchResultComponent }
         ]),
         ReactiveFormsModule,
-        CookieModule.forRoot(),
         TranslateModule.forRoot(),
         BrowserAnimationsModule,
         MatCheckboxModule,
@@ -56,7 +63,10 @@ describe('TwoFactorAuthEnterComponent', () => {
         MatPaginatorModule,
         MatDialogModule,
         MatDividerModule,
-        MatButtonModule
+        MatButtonModule,
+        MatGridListModule,
+        MatSnackBarModule,
+        MatTooltipModule
       ],
       declarations: [ TwoFactorAuthEnterComponent, SearchResultComponent ],
       providers: [

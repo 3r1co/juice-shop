@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { Inject, Injectable } from '@angular/core'
 import { DOCUMENT } from '@angular/common'
 
@@ -8,8 +13,8 @@ export class FormSubmitService {
 
   constructor (@Inject(DOCUMENT) private _document: HTMLDocument) { }
 
-  attachEnterKeyHandler (formId, submitButtonId, onSubmit) {
-    const form = this._document.getElementById(formId)
+  attachEnterKeyHandler (formId: string, submitButtonId: string, onSubmit: Function) {
+    const form = this._document.getElementById(formId) as HTMLFormElement
     const submitButton = this._document.getElementById(submitButtonId) as HTMLInputElement
 
     form.addEventListener('keyup', function (event) {

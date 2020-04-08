@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 const chai = require('chai')
 const sinonChai = require('sinon-chai')
 const expect = chai.expect
@@ -32,7 +37,7 @@ describe('challengeCountryMapping', () => {
     for (const key of Object.keys(countryMapping)) {
       const { code } = countryMapping[key]
 
-      if (!countryCodeCounts.hasOwnProperty(code)) {
+      if (!Object.prototype.hasOwnProperty.call(countryCodeCounts, code)) {
         countryCodeCounts[code] = 0
       }
       countryCodeCounts[code]++

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 describe('/ftp', () => {
   describe('challenge "confidentialDocument"', () => {
     it('should be able to access file /ftp/acquisitions.md', () => {
@@ -40,7 +45,7 @@ describe('/ftp', () => {
       browser.driver.get(browser.baseUrl + '/ftp/eastere.gg%2500.md')
     })
 
-    protractor.expect.challengeSolved({ challenge: 'Easter Egg Tier 1' })
+    protractor.expect.challengeSolved({ challenge: 'Easter Egg' })
   })
 
   describe('challenge "misplacedSiemFileChallenge"', () => {

@@ -1,25 +1,29 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
+const utils = require('../../lib/utils')
+
 describe('/#/track-order', () => {
-  let orderId, trackButton
+  if (!utils.disableOnContainerEnv()) {
+    describe('challenge "reflectedXss"', () => {
+      it('Order Id should be susceptible to reflected XSS attacks', () => {
+        const EC = protractor.ExpectedConditions
 
-  beforeEach(() => {
-    browser.get('/#/track-order')
-    orderId = element(by.id('orderId'))
-    trackButton = element(by.id('trackButton'))
-  })
+        browser.get(protractor.basePath + '/#/track-result')
+        browser.waitForAngularEnabled(false)
+        browser.get(protractor.basePath + '/#/track-result?id=<iframe src="javascript:alert(`xss`)">')
+        browser.refresh()
 
-  describe('challenge "xss0"', () => {
-    it('Order Id should be susceptible to reflected XSS attacks', () => {
-      const EC = protractor.ExpectedConditions
-
-      orderId.sendKeys('<iframe src="javascript:alert(`xss`)">')
-      trackButton.click()
-      browser.wait(EC.alertIsPresent(), 5000, "'xss' alert is not present")
-      browser.switchTo().alert().then(alert => {
-        expect(alert.getText()).toEqual('xss')
-        alert.accept()
+        browser.wait(EC.alertIsPresent(), 5000, "'xss' alert is not present on /#/track-result ")
+        browser.switchTo().alert().then(alert => {
+          expect(alert.getText()).toEqual('xss')
+          alert.accept()
+        })
       })
-    })
 
-    protractor.expect.challengeSolved({ challenge: 'XSS Tier 0' })
-  })
+      protractor.expect.challengeSolved({ challenge: 'Reflected XSS' })
+    })
+  }
 })

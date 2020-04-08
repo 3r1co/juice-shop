@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 const chai = require('chai')
 const expect = chai.expect
 
@@ -164,6 +169,61 @@ describe('insecurity', () => {
 
     it('can be bypassed to allow working HTML payload to be returned', () => {
       expect(insecurity.sanitizeLegacy('<<a|ascript>alert(`xss`)</script>')).to.equal('<script>alert(`xss`)</script>')
+    })
+  })
+
+  describe('sanitizeSecure', () => {
+    it('handles empty inputs by returning their string representation', () => {
+      expect(insecurity.sanitizeSecure()).to.equal('undefined')
+      expect(insecurity.sanitizeSecure(undefined)).to.equal('undefined')
+      expect(insecurity.sanitizeSecure(null)).to.equal('null')
+      expect(insecurity.sanitizeSecure('')).to.equal('')
+    })
+
+    it('returns input unchanged for plain text input', () => {
+      expect(insecurity.sanitizeSecure('This application is horrible!')).to.equal('This application is horrible!')
+    })
+
+    it('returns input unchanged for HTML input with only harmless text formatting', () => {
+      expect(insecurity.sanitizeSecure('<strong>This</strong> application <em>is horrible</em>!')).to.equal('<strong>This</strong> application <em>is horrible</em>!')
+    })
+
+    it('returns input unchanged for HTML input with only harmless links', () => {
+      expect(insecurity.sanitizeSecure('<a href="bla.blubb">Please see here for details!</a>')).to.equal('<a href="bla.blubb">Please see here for details!</a>')
+    })
+
+    it('removes all Javascript from HTML input', () => {
+      expect(insecurity.sanitizeSecure('Sani<script>alert("ScriptXSS")</script>tizedScript')).to.equal('SanitizedScript')
+      expect(insecurity.sanitizeSecure('Sani<img src="alert("ImageXSS")"/>tizedImage')).to.equal('SanitizedImage')
+      expect(insecurity.sanitizeSecure('Sani<iframe src="alert("IFrameXSS")"></iframe>tizedIFrame')).to.equal('SanitizedIFrame')
+    })
+
+    it('cannot be bypassed by exploiting lack of recursive sanitization', () => {
+      expect(insecurity.sanitizeSecure('Bla<<script>Foo</script>iframe src="javascript:alert(`xss`)">Blubb')).to.equal('BlaBlubb')
+    })
+  })
+
+  describe('hash', () => {
+    it('throws type error for for undefined input', () => {
+      expect(() => insecurity.hash()).to.throw(TypeError)
+    })
+
+    it('returns MD5 hash for any input string', () => {
+      expect(insecurity.hash('admin123')).to.equal('0192023a7bbd73250516f069df18b500')
+      expect(insecurity.hash('password')).to.equal('5f4dcc3b5aa765d61d8327deb882cf99')
+      expect(insecurity.hash('')).to.equal('d41d8cd98f00b204e9800998ecf8427e')
+    })
+  })
+
+  describe('hmac', () => {
+    it('throws type error for for undefined input', () => {
+      expect(() => insecurity.hmac()).to.throw(TypeError)
+    })
+
+    it('returns SHA-256 HMAC with "pa4qacea4VK9t9nGv7yZtwmj" as salt any input string', () => {
+      expect(insecurity.hmac('admin123')).to.equal('6be13e2feeada221f29134db71c0ab0be0e27eccfc0fb436ba4096ba73aafb20')
+      expect(insecurity.hmac('password')).to.equal('da28fc4354f4a458508a461fbae364720c4249c27f10fccf68317fc4bf6531ed')
+      expect(insecurity.hmac('')).to.equal('f052179ec5894a2e79befa8060cfcb517f1e14f7f6222af854377b6481ae953e')
     })
   })
 })

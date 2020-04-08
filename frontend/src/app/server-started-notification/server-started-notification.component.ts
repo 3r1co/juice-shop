@@ -1,14 +1,24 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { TranslateService } from '@ngx-translate/core'
 import { ChallengeService } from '../Services/challenge.service'
 import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core'
-import { CookieService } from 'ngx-cookie'
+import { CookieService } from 'ngx-cookie-service'
 import { SocketIoService } from '../Services/socket-io.service'
 
-import { library, dom } from '@fortawesome/fontawesome-svg-core'
+import { dom, library } from '@fortawesome/fontawesome-svg-core'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 
 library.add(faTrash)
 dom.watch()
+
+interface HackingProgress {
+  autoRestoreMessage: string | null
+  cleared: boolean
+}
 
 @Component({
   selector: 'app-server-started-notification',
@@ -17,7 +27,7 @@ dom.watch()
 })
 export class ServerStartedNotificationComponent implements OnInit {
 
-  public hackingProgress: any = {}
+  public hackingProgress: HackingProgress = {} as HackingProgress
 
   constructor (private ngZone: NgZone, private challengeService: ChallengeService,private translate: TranslateService,private cookieService: CookieService,private ref: ChangeDetectorRef, private io: SocketIoService) {
   }
@@ -54,7 +64,7 @@ export class ServerStartedNotificationComponent implements OnInit {
   }
 
   clearProgress () {
-    this.cookieService.remove('continueCode')
+    this.cookieService.delete('continueCode', '/')
     this.hackingProgress.cleared = true
   }
 

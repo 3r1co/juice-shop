@@ -1,11 +1,17 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 const frisby = require('frisby')
 const Joi = frisby.Joi
+const utils = require('../../lib/utils')
 const insecurity = require('../../lib/insecurity')
 
 const API_URL = 'http://localhost:3000/api'
 const REST_URL = 'http://localhost:3000/rest'
 
-const authHeader = { 'Authorization': 'Bearer ' + insecurity.authorize(), 'content-type': /application\/json/ }
+const authHeader = { Authorization: 'Bearer ' + insecurity.authorize(), 'content-type': /application\/json/ }
 const jsonHeader = { 'content-type': 'application/json' }
 
 describe('/api/Feedbacks', () => {
@@ -35,26 +41,28 @@ describe('/api/Feedbacks', () => {
       })
   })
 
-  it('POST fails to sanitize masked XSS-attack by not applying sanitization recursively', () => {
-    return frisby.get(REST_URL + '/captcha')
-      .expect('status', 200)
-      .expect('header', 'content-type', /application\/json/)
-      .then(({ json }) => {
-        return frisby.post(API_URL + '/Feedbacks', {
-          headers: jsonHeader,
-          body: {
-            comment: 'The sanitize-html module up to at least version 1.4.2 has this issue: <<script>Foo</script>iframe src="javascript:alert(`xss`)">',
-            rating: 1,
-            captchaId: json.captchaId,
-            captcha: json.answer
-          }
-        })
-          .expect('status', 201)
-          .expect('json', 'data', {
-            comment: 'The sanitize-html module up to at least version 1.4.2 has this issue: <iframe src="javascript:alert(`xss`)">'
+  if (!utils.disableOnContainerEnv()) {
+    it('POST fails to sanitize masked XSS-attack by not applying sanitization recursively', () => {
+      return frisby.get(REST_URL + '/captcha')
+        .expect('status', 200)
+        .expect('header', 'content-type', /application\/json/)
+        .then(({ json }) => {
+          return frisby.post(API_URL + '/Feedbacks', {
+            headers: jsonHeader,
+            body: {
+              comment: 'The sanitize-html module up to at least version 1.4.2 has this issue: <<script>Foo</script>iframe src="javascript:alert(`xss`)">',
+              rating: 1,
+              captchaId: json.captchaId,
+              captcha: json.answer
+            }
           })
-      })
-  })
+            .expect('status', 201)
+            .expect('json', 'data', {
+              comment: 'The sanitize-html module up to at least version 1.4.2 has this issue: <iframe src="javascript:alert(`xss`)">'
+            })
+        })
+    })
+  }
 
   it('POST feedback in another users name as anonymous user', () => {
     return frisby.get(REST_URL + '/captcha')
@@ -103,11 +111,11 @@ describe('/api/Feedbacks', () => {
   })
 
   it('POST feedback is associated with current user', () => {
-    return frisby.timeout(10000).post(REST_URL + '/user/login', {
+    return frisby.post(REST_URL + '/user/login', {
       headers: jsonHeader,
       body: {
-        email: 'bjoern.kimminich@googlemail.com',
-        password: 'bW9jLmxpYW1lbGdvb2dAaGNpbmltbWlrLm5yZW9qYg=='
+        email: 'bjoern.kimminich@gmail.com',
+        password: 'bW9jLmxpYW1nQGhjaW5pbW1pay5ucmVvamI='
       }
     })
       .expect('status', 200)
@@ -117,7 +125,7 @@ describe('/api/Feedbacks', () => {
           .expect('header', 'content-type', /application\/json/)
           .then(({ json }) => {
             return frisby.post(API_URL + '/Feedbacks', {
-              headers: { 'Authorization': 'Bearer ' + jsonLogin.authentication.token, 'content-type': 'application/json' },
+              headers: { Authorization: 'Bearer ' + jsonLogin.authentication.token, 'content-type': 'application/json' },
               body: {
                 comment: 'Stupid JWT secret "' + insecurity.defaultSecret + '" and being typosquatted by epilogue-js and ng2-bar-rating!',
                 rating: 5,
@@ -136,11 +144,11 @@ describe('/api/Feedbacks', () => {
   })
 
   it('POST feedback is associated with any passed user ID', () => {
-    return frisby.timeout(10000).post(REST_URL + '/user/login', {
+    return frisby.post(REST_URL + '/user/login', {
       headers: jsonHeader,
       body: {
-        email: 'bjoern.kimminich@googlemail.com',
-        password: 'bW9jLmxpYW1lbGdvb2dAaGNpbmltbWlrLm5yZW9qYg=='
+        email: 'bjoern.kimminich@gmail.com',
+        password: 'bW9jLmxpYW1nQGhjaW5pbW1pay5ucmVvamI='
       }
     })
       .expect('status', 200)
@@ -150,7 +158,7 @@ describe('/api/Feedbacks', () => {
           .expect('header', 'content-type', /application\/json/)
           .then(({ json }) => {
             return frisby.post(API_URL + '/Feedbacks', {
-              headers: { 'Authorization': 'Bearer ' + jsonLogin.authentication.token, 'content-type': 'application/json' },
+              headers: { Authorization: 'Bearer ' + jsonLogin.authentication.token, 'content-type': 'application/json' },
               body: {
                 comment: 'Bender\'s choice award!',
                 rating: 5,
@@ -270,15 +278,14 @@ describe('/api/Feedbacks/:id', () => {
       .expect('status', 401)
   })
 
-  xit('PUT update existing feedback', () => { // FIXME Verify if put is actually meant to work
+  it('PUT update existing feedback', () => {
     return frisby.put(API_URL + '/Feedbacks/2', {
       headers: authHeader,
       body: {
         rating: 0
       }
     })
-      .expect('status', 200)
-      .expect('json', 'data', { rating: 0 })
+      .expect('status', 401)
   })
 
   it('DELETE existing feedback is forbidden via public API', () => {

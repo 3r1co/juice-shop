@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
 import { environment } from '../../environments/environment'
@@ -13,7 +18,7 @@ export class TrackOrderService {
 
   constructor (private http: HttpClient) { }
 
-  save (params) {
+  save (params: any) {
     params = encodeURIComponent(params)
     return this.http.get(this.host + '/' + params).pipe(map((response: any) => response),catchError((error) => { throw error }))
   }

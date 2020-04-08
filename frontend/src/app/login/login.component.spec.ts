@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { SearchResultComponent } from '../search-result/search-result.component'
 import { WindowRefService } from '../Services/window-ref.service'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
@@ -13,7 +18,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatCardModule } from '@angular/material/card'
 import { MatInputModule } from '@angular/material/input'
-import { CookieModule, CookieService } from 'ngx-cookie'
+import { CookieService } from 'ngx-cookie-service'
 import { Location } from '@angular/common'
 import { of, throwError } from 'rxjs'
 import { MatTableModule } from '@angular/material/table'
@@ -21,12 +26,14 @@ import { MatPaginatorModule } from '@angular/material/paginator'
 import { MatDialogModule } from '@angular/material/dialog'
 import { MatDividerModule } from '@angular/material/divider'
 import { TranslateModule } from '@ngx-translate/core'
+import { MatGridListModule } from '@angular/material/grid-list'
+import { MatTooltipModule } from '@angular/material/tooltip'
 
 describe('LoginComponent', () => {
   let component: LoginComponent
   let fixture: ComponentFixture<LoginComponent>
-  let userService
-  let location
+  let userService: any
+  let location: Location
 
   beforeEach(async(() => {
 
@@ -44,7 +51,6 @@ describe('LoginComponent', () => {
         ]
         ),
         ReactiveFormsModule,
-        CookieModule.forRoot(),
         TranslateModule.forRoot(),
         BrowserAnimationsModule,
         MatCheckboxModule,
@@ -55,7 +61,9 @@ describe('LoginComponent', () => {
         MatTableModule,
         MatPaginatorModule,
         MatDialogModule,
-        MatDividerModule
+        MatDividerModule,
+        MatGridListModule,
+        MatTooltipModule
       ],
       providers: [
         { provide: UserService, useValue: userService },
@@ -65,7 +73,7 @@ describe('LoginComponent', () => {
     })
     .compileComponents()
 
-    location = TestBed.get(Location)
+    location = TestBed.inject(Location)
   }))
 
   beforeEach(() => {

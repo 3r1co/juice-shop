@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 const frisby = require('frisby')
 const Joi = frisby.Joi
 const insecurity = require('../../lib/insecurity')
@@ -17,13 +22,13 @@ async function login ({ email, password, totpSecret }) {
       email,
       password
     }).catch((res) => {
-      if (res.json && res.json.type && res.json.status === 'totp_token_requried') {
+      if (res.json && res.json.type && res.json.status === 'totp_token_required') {
         return res
       }
       throw new Error(`Failed to login '${email}'`)
     })
 
-  if (loginRes.json.status && loginRes.json.status === 'totp_token_requried') {
+  if (loginRes.json.status && loginRes.json.status === 'totp_token_required') {
     const totpRes = await frisby
       .post(REST_URL + '/2fa/verify', {
         tmpToken: loginRes.json.data.tmpToken,
@@ -55,7 +60,7 @@ async function register ({ email, password, totpSecret }) {
       REST_URL + '/2fa/setup',
       {
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'content-type': 'application/json'
         },
         body: {
@@ -79,14 +84,14 @@ function getStatus (token) {
     REST_URL + '/2fa/status',
     {
       headers: {
-        'Authorization': 'Bearer ' + token,
+        Authorization: 'Bearer ' + token,
         'content-type': 'application/json'
       }
     })
 }
 
 describe('/rest/2fa/verify', () => {
-  it('POST should return a valid authentification when a valid tmp token is passed', async () => {
+  it('POST should return a valid authentication when a valid tmp token is passed', async () => {
     const tmpTokenWurstbrot = insecurity.authorize({
       userId: 10,
       type: 'password_valid_needs_second_factor_token'
@@ -162,7 +167,7 @@ describe('/rest/2fa/status', () => {
       REST_URL + '/2fa/status',
       {
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'content-type': 'application/json'
         }
       })
@@ -186,7 +191,7 @@ describe('/rest/2fa/status', () => {
       REST_URL + '/2fa/status',
       {
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'content-type': 'application/json'
         }
       })
@@ -224,7 +229,7 @@ describe('/rest/2fa/setup', () => {
       REST_URL + '/2fa/setup',
       {
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'content-type': 'application/json'
         },
         body: {
@@ -242,7 +247,7 @@ describe('/rest/2fa/setup', () => {
       REST_URL + '/2fa/status',
       {
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'content-type': 'application/json'
         }
       })
@@ -268,7 +273,7 @@ describe('/rest/2fa/setup', () => {
       REST_URL + '/2fa/setup',
       {
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'content-type': 'application/json'
         },
         body: {
@@ -296,7 +301,7 @@ describe('/rest/2fa/setup', () => {
       REST_URL + '/2fa/setup',
       {
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'content-type': 'application/json'
         },
         body: {
@@ -324,7 +329,7 @@ describe('/rest/2fa/setup', () => {
       REST_URL + '/2fa/setup',
       {
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'content-type': 'application/json'
         },
         body: {
@@ -350,7 +355,7 @@ describe('/rest/2fa/setup', () => {
       REST_URL + '/2fa/setup',
       {
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'content-type': 'application/json'
         },
         body: {
@@ -385,7 +390,7 @@ describe('/rest/2fa/disable', () => {
       REST_URL + '/2fa/disable',
       {
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'content-type': 'application/json'
         },
         body: {
@@ -419,7 +424,7 @@ describe('/rest/2fa/disable', () => {
       REST_URL + '/2fa/disable',
       {
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'content-type': 'application/json'
         },
         body: {

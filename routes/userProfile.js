@@ -1,25 +1,31 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 const fs = require('fs')
 const models = require('../models/index')
 const utils = require('../lib/utils')
 const insecurity = require('../lib/insecurity')
-const jade = require('jade')
+const challenges = require('../data/datacache').challenges
+const pug = require('pug')
 const config = require('config')
 const themes = require('../views/themes/themes').themes
 
 module.exports = function getUserProfile () {
   return (req, res, next) => {
-    fs.readFile('views/userProfile.jade', function (err, buf) {
+    fs.readFile('views/userProfile.pug', function (err, buf) {
       if (err) throw err
       const loggedInUser = insecurity.authenticatedUsers.get(req.cookies.token)
       if (loggedInUser) {
         models.User.findByPk(loggedInUser.data.id).then(user => {
-          let jadeTemplate = buf.toString()
+          let template = buf.toString()
           let username = user.dataValues.username
           if (username.match(/#\{(.*)\}/) !== null && !utils.disableOnContainerEnv()) {
             req.app.locals.abused_ssti_bug = true
             const code = username.substring(2, username.length - 1)
             try {
-              eval(code) // eslint-disable-line no-eval
+              username = eval(code) // eslint-disable-line no-eval
             } catch (err) {
               username = '\\' + username
             }
@@ -27,14 +33,24 @@ module.exports = function getUserProfile () {
             username = '\\' + username
           }
           const theme = themes[config.get('application.theme')]
-          jadeTemplate = jadeTemplate.replace(/_username_/g, username)
-          jadeTemplate = jadeTemplate.replace(/_emailHash_/g, insecurity.hash(user.dataValues.email))
-          jadeTemplate = jadeTemplate.replace(/_title_/g, config.get('application.name'))
-          jadeTemplate = jadeTemplate.replace(/_favicon_/g, favicon())
-          jadeTemplate = jadeTemplate.replace(/_bgColor_/g, theme.bgColor)
-          jadeTemplate = jadeTemplate.replace(/_textColor_/g, theme.textColor)
-          jadeTemplate = jadeTemplate.replace(/_navColor_/g, theme.navColor)
-          const fn = jade.compile(jadeTemplate)
+          template = template.replace(/_username_/g, username)
+          template = template.replace(/_emailHash_/g, insecurity.hash(user.dataValues.email))
+          template = template.replace(/_title_/g, config.get('application.name'))
+          template = template.replace(/_favicon_/g, favicon())
+          template = template.replace(/_bgColor_/g, theme.bgColor)
+          template = template.replace(/_textColor_/g, theme.textColor)
+          template = template.replace(/_navColor_/g, theme.navColor)
+          template = template.replace(/_primLight_/g, theme.primLight)
+          template = template.replace(/_primDark_/g, theme.primDark)
+          template = template.replace(/_logo_/g, utils.extractFilename(config.get('application.logo')))
+          const fn = pug.compile(template)
+          const CSP = `img-src 'self' ${user.dataValues.profileImage}; script-src 'self' 'unsafe-eval' https://code.getmdl.io http://ajax.googleapis.com`
+          utils.solveIf(challenges.usernameXssChallenge, () => { return user.dataValues.profileImage.match(/;[ ]*script-src(.)*'unsafe-inline'/g) !== null && utils.contains(username, '<script>alert(`xss`)</script>') })
+
+          res.set({
+            'Content-Security-Policy': CSP
+          })
+
           res.send(fn(user.dataValues))
         }).catch(error => {
           next(error)
@@ -46,8 +62,6 @@ module.exports = function getUserProfile () {
   }
 
   function favicon () {
-    let icon = config.get('application.favicon')
-    icon = decodeURIComponent(icon.substring(icon.lastIndexOf('/') + 1))
-    return icon
+    return utils.extractFilename(config.get('application.favicon'))
   }
 }

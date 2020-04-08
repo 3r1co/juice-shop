@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { inject, TestBed } from '@angular/core/testing'
 
@@ -9,7 +14,7 @@ describe('TwoFactorAuthServiceService', () => {
     providers: [TwoFactorAuthService]
   }))
 
-  it('should be created', inject([TwoFactorAuthService], (service) => {
+  it('should be created', inject([TwoFactorAuthService], (service: TwoFactorAuthService) => {
     expect(service).toBeTruthy()
   }))
 })

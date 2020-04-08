@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 const frisby = require('frisby')
 const Joi = frisby.Joi
 const insecurity = require('../../lib/insecurity')
@@ -8,7 +13,7 @@ const REST_URL = 'http://localhost:3000/rest'
 
 const customHeader = {
   'X-User-Email': 'ciso@' + config.get('application.domain'),
-  'Authorization': 'Bearer ' + insecurity.authorize(),
+  Authorization: 'Bearer ' + insecurity.authorize(),
   'content-type': 'application/json'
 }
 const jsonHeader = { 'content-type': 'application/json' }
@@ -131,16 +136,16 @@ describe('/rest/user/login', () => {
         tmpToken: Joi.string()
       })
       .expect('json', {
-        status: 'totp_token_requried'
+        status: 'totp_token_required'
       })
   })
 
-  it('POST login as bjoern.kimminich@googlemail.com with known password', () => {
+  it('POST login as bjoern.kimminich@gmail.com with known password', () => {
     return frisby.post(REST_URL + '/user/login', {
       headers: jsonHeader,
       body: {
-        email: 'bjoern.kimminich@googlemail.com',
-        password: 'bW9jLmxpYW1lbGdvb2dAaGNpbmltbWlrLm5yZW9qYg=='
+        email: 'bjoern.kimminich@gmail.com',
+        password: 'bW9jLmxpYW1nQGhjaW5pbW1pay5ucmVvamI='
       }
     })
       .expect('status', 200)
@@ -210,6 +215,21 @@ describe('/rest/user/login', () => {
       })
   })
 
+  it('POST login with non-existing email "acc0unt4nt@juice-sh.op" via UNION SELECT injection attack', () => {
+    return frisby.post(REST_URL + '/user/login', {
+      header: jsonHeader,
+      body: {
+        email: `' UNION SELECT * FROM (SELECT 15 as 'id', '' as 'username', 'acc0unt4nt@${config.get('application.domain')}' as 'email', '12345' as 'password', 'accounting' as 'role', '' as deluxeToken, '1.2.3.4' as 'lastLoginIp' , '/assets/public/images/uploads/default.svg' as 'profileImage', '' as 'totpSecret', 1 as 'isActive', '1999-08-16 14:14:41.644 +00:00' as 'createdAt', '1999-08-16 14:33:41.930 +00:00' as 'updatedAt', null as 'deletedAt')--`,
+        password: undefined
+      }
+    })
+      .expect('status', 200)
+      .expect('header', 'content-type', /application\/json/)
+      .expect('jsonTypes', 'authentication', {
+        token: Joi.string()
+      })
+  })
+
   it('POST login with query-breaking SQL Injection attack', () => {
     return frisby.post(REST_URL + '/user/login', {
       header: jsonHeader,
@@ -233,5 +253,48 @@ describe('/rest/user/login', () => {
       .expect('status', 200)
       .expect('header', 'content-type', /application\/json/)
       .expect('json', 'authentication', { umail: 'ciso@' + config.get('application.domain') })
+  })
+})
+
+describe('/rest/saveLoginIp', () => {
+  it('GET last login IP will be saved as True-Client-IP header value', () => {
+    return frisby.post(REST_URL + '/user/login', {
+      headers: jsonHeader,
+      body: {
+        email: 'bjoern.kimminich@gmail.com',
+        password: 'bW9jLmxpYW1nQGhjaW5pbW1pay5ucmVvamI='
+      }
+    })
+      .expect('status', 200)
+      .then(({ json: jsonLogin }) => {
+        return frisby.get(REST_URL + '/saveLoginIp', {
+          headers: {
+            Authorization: 'Bearer ' + jsonLogin.authentication.token,
+            'true-client-ip': '1.2.3.4'
+          }
+        })
+          .expect('status', 200)
+          .expect('json', { lastLoginIp: '1.2.3.4' })
+      })
+  })
+
+  it('GET last login IP will be saved as remote IP when True-Client-IP is not present', () => {
+    return frisby.post(REST_URL + '/user/login', {
+      headers: jsonHeader,
+      body: {
+        email: 'bjoern.kimminich@gmail.com',
+        password: 'bW9jLmxpYW1nQGhjaW5pbW1pay5ucmVvamI='
+      }
+    })
+      .expect('status', 200)
+      .then(({ json: jsonLogin }) => {
+        return frisby.get(REST_URL + '/saveLoginIp', {
+          headers: {
+            Authorization: 'Bearer ' + jsonLogin.authentication.token
+          }
+        })
+          .expect('status', 200)
+          .expect('json', { lastLoginIp: '127.0.0.1' })
+      })
   })
 })

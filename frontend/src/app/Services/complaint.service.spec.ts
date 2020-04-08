@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing'
 import { fakeAsync, inject, TestBed, tick } from '@angular/core/testing'
 
@@ -18,7 +23,7 @@ describe('ComplaintService', () => {
 
   it('should create complaint directly via the rest api', inject([ComplaintService, HttpTestingController],
     fakeAsync((service: ComplaintService, httpMock: HttpTestingController) => {
-      let res
+      let res: any
       service.save(null).subscribe((data) => res = data)
       const req = httpMock.expectOne('http://localhost:3000/api/Complaints/')
       req.flush({ data: 'apiResponse' })

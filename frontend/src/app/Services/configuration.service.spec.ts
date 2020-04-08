@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { fakeAsync, inject, TestBed, tick } from '@angular/core/testing'
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing'
 import { ConfigurationService } from './configuration.service'
@@ -19,7 +24,7 @@ describe('ConfigurationService', () => {
   it('should get application configuration directly from the rest api',
       inject([ConfigurationService, HttpTestingController],
         fakeAsync((service: ConfigurationService,httpMock: HttpTestingController) => {
-          let res
+          let res: any
           service.getApplicationConfiguration().subscribe(data => { res = data })
 
           const req = httpMock.expectOne('http://localhost:3000/rest/admin/application-configuration')
@@ -27,7 +32,7 @@ describe('ConfigurationService', () => {
             config:
             {
               version: '8.0.0',
-              gitHubRibbon: 'red'
+              showGitHubLinks: false
             }
           })
 
@@ -35,7 +40,7 @@ describe('ConfigurationService', () => {
 
           const data = res
           expect(data.version).toBe('8.0.0')
-          expect(data.gitHubRibbon).toBe('red')
+          expect(data.showGitHubLink).toBeFalsy()
 
           httpMock.verify()
         })
@@ -44,7 +49,7 @@ describe('ConfigurationService', () => {
   it('should throw an error on recieving an error from the server' ,
     inject([ConfigurationService, HttpTestingController],
       fakeAsync((service: ConfigurationService, httpMock: HttpTestingController) => {
-        let res
+        let res: any
         service.getApplicationConfiguration().subscribe(data => {
           console.log(data)
         },(err) => res = err)

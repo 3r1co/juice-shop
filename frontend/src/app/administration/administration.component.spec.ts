@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { UserDetailsComponent } from '../user-details/user-details.component'
 import { BarRatingModule } from 'ng2-bar-rating'
 import { FeedbackService } from '../Services/feedback.service'
@@ -14,9 +19,9 @@ import { throwError } from 'rxjs/internal/observable/throwError'
 describe('AdministrationComponent', () => {
   let component: AdministrationComponent
   let fixture: ComponentFixture<AdministrationComponent>
-  let dialog
-  let userService
-  let feedbackService
+  let dialog: any
+  let userService: any
+  let feedbackService: any
 
   beforeEach(async(() => {
 

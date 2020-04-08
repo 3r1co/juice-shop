@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing'
 import { fakeAsync, inject, TestBed, tick } from '@angular/core/testing'
 
@@ -10,13 +15,13 @@ describe('LanguagesService', () => {
   }))
 
   it('should be created', () => {
-    const service: LanguagesService = TestBed.get(LanguagesService)
+    const service: LanguagesService = TestBed.inject(LanguagesService)
     expect(service).toBeTruthy()
   })
 
   it('should get the language list through the rest API', inject([LanguagesService, HttpTestingController],
     fakeAsync((service: LanguagesService, httpMock: HttpTestingController) => {
-      let res
+      let res: any
       service.getLanguages().subscribe((data) => res = data)
 
       const req = httpMock.expectOne('http://localhost:3000/rest/languages')

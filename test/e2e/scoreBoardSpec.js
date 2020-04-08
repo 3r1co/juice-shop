@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 const config = require('config')
 
 describe('/#/score-board', () => {
   describe('challenge "scoreBoard"', () => {
     it('should be possible to access score board', () => {
-      browser.get('/#/score-board')
+      browser.get(protractor.basePath + '/#/score-board')
       expect(browser.getCurrentUrl()).toMatch(/\/score-board/)
     })
 
@@ -12,8 +17,8 @@ describe('/#/score-board', () => {
 
   describe('challenge "continueCode"', () => {
     it('should be possible to solve the non-existent challenge #99', () => {
-      browser.executeScript('var xhttp = new XMLHttpRequest(); xhttp.onreadystatechange = function() { if (this.status == 200) { console.log("Success"); } }; xhttp.open("PUT","http://localhost:3000/rest/continue-code/apply/69OxrZ8aJEgxONZyWoz1Dw4BvXmRGkM6Ae9M7k2rK63YpqQLPjnlb5V5LvDj", true); xhttp.setRequestHeader("Content-type","text/plain"); xhttp.send();') // eslint-disable-line
-      browser.get('/#/score-board')
+      browser.executeScript('var xhttp = new XMLHttpRequest(); xhttp.onreadystatechange = function() { if (this.status == 200) { console.log("Success"); } }; xhttp.open("PUT","'+browser.baseUrl+'/rest/continue-code/apply/69OxrZ8aJEgxONZyWoz1Dw4BvXmRGkM6Ae9M7k2rK63YpqQLPjnlb5V5LvDj", true); xhttp.setRequestHeader("Content-type","text/plain"); xhttp.send();') // eslint-disable-line
+      browser.get(protractor.basePath + '/#/score-board')
     })
 
     protractor.expect.challengeSolved({ challenge: 'Imaginary Challenge' })
@@ -23,11 +28,11 @@ describe('/#/score-board', () => {
     let alertsBefore, alertsNow
 
     beforeEach(() => {
-      browser.get('/#/score-board')
+      browser.get(protractor.basePath + '/#/score-board')
     })
 
-    if (config.get('application.showChallengeSolvedNotifications') && config.get('ctf.showFlagsInNotifications')) {
-      xit('should be possible when in CTF mode', () => {
+    if (config.get('challenges.showSolvedNotifications') && config.get('ctf.showFlagsInNotifications')) {
+      it('should be possible when in CTF mode', () => {
         alertsBefore = element.all(by.className('challenge-solved-toast')).count()
 
         element(by.id('Score Board.solved')).click()
@@ -37,7 +42,7 @@ describe('/#/score-board', () => {
         expect(alertsBefore).not.toBe(alertsNow)
       })
     } else {
-      xit('should not be possible when not in CTF mode', () => {
+      it('should not be possible when not in CTF mode', () => {
         alertsBefore = element.all(by.className('challenge-solved-toast')).count()
 
         element(by.id('Score Board.solved')).click()

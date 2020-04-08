@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 const frisby = require('frisby')
 const config = require('config')
 
@@ -6,11 +11,6 @@ const URL = 'http://localhost:3000'
 describe('/redirect', () => {
   it('GET redirected to https://github.com/bkimminich/juice-shop when this URL is passed as "to" parameter', () => {
     return frisby.get(URL + '/redirect?to=https://github.com/bkimminich/juice-shop', { redirect: 'manual' })
-      .expect('status', 302)
-  })
-
-  it('GET redirected to https://gratipay.com/juice-shop when this URL is passed as "to" parameter', () => {
-    return frisby.get(URL + '/redirect?to=https://gratipay.com/juice-shop', { redirect: 'manual' })
       .expect('status', 302)
   })
 
@@ -36,6 +36,11 @@ describe('/redirect', () => {
 
   it('GET redirected to https://explorer.dash.org/address/Xr556RzuwX6hg5EGpkybbv5RanJoZN17kW when this URL is passed as "to" parameter', () => {
     return frisby.get(URL + '/redirect?to=https://explorer.dash.org/address/Xr556RzuwX6hg5EGpkybbv5RanJoZN17kW', { redirect: 'manual' })
+      .expect('status', 302)
+  })
+
+  it('GET redirected to https://etherscan.io/address/0x0f933ab9fcaaa782d0279c300d73750e1311eae6 when this URL is passed as "to" parameter', () => {
+    return frisby.get(URL + '/redirect?to=https://etherscan.io/address/0x0f933ab9fcaaa782d0279c300d73750e1311eae6', { redirect: 'manual' })
       .expect('status', 302)
   })
 
@@ -69,8 +74,8 @@ describe('/redirect', () => {
     return frisby.get(URL + '/redirect?to=/score-board?satisfyIndexOf=https://github.com/bkimminich/juice-shop')
       .expect('status', 200)
       .expect('header', 'content-type', /text\/html/)
-      .expect('bodyContains', 'main.js')
-      .expect('bodyContains', 'runtime.js')
-      .expect('bodyContains', 'polyfills.js')
+      .expect('bodyContains', 'main-es2015.js')
+      .expect('bodyContains', 'runtime-es2015.js')
+      .expect('bodyContains', 'polyfills-es2015.js')
   })
 })

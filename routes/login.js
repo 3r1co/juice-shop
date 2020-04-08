@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 const utils = require('../lib/utils')
 const insecurity = require('../lib/insecurity')
 const models = require('../models/index')
@@ -7,15 +12,9 @@ const config = require('config')
 
 module.exports = function login () {
   function afterLogin (user, res, next) {
-    if (utils.notSolved(challenges.loginAdminChallenge) && user.data.id === users.admin.id) {
-      utils.solve(challenges.loginAdminChallenge)
-    } else if (utils.notSolved(challenges.loginJimChallenge) && user.data.id === users.jim.id) {
-      utils.solve(challenges.loginJimChallenge)
-    } else if (utils.notSolved(challenges.loginBenderChallenge) && user.data.id === users.bender.id) {
-      utils.solve(challenges.loginBenderChallenge)
-    }
+    verifyPostLoginChallenges(user)
     models.Basket.findOrCreate({ where: { userId: user.data.id }, defaults: {} })
-      .then(([basket, created]) => {
+      .then(([basket]) => {
         const token = insecurity.authorize(user)
         user.bid = basket.id // keep track of original basket for challenge solution check
         insecurity.authenticatedUsers.put(token, user)
@@ -26,40 +25,20 @@ module.exports = function login () {
   }
 
   return (req, res, next) => {
-    if (utils.notSolved(challenges.weakPasswordChallenge) && req.body.email === 'admin@' + config.get('application.domain') && req.body.password === 'admin123') {
-      utils.solve(challenges.weakPasswordChallenge)
-    }
-    if (utils.notSolved(challenges.loginSupportChallenge) && req.body.email === 'support@' + config.get('application.domain') && req.body.password === 'J6aVjTgOpRs$?5l+Zkq2AYnCE@RF§P') {
-      utils.solve(challenges.loginSupportChallenge)
-    }
-    if (utils.notSolved(challenges.loginRapperChallenge) && req.body.email === 'mc.safesearch@' + config.get('application.domain') && req.body.password === 'Mr. N00dles') {
-      utils.solve(challenges.loginRapperChallenge)
-    }
-    if (utils.notSolved(challenges.loginAmyChallenge) && req.body.email === 'amy@' + config.get('application.domain') && req.body.password === 'K1f.....................') {
-      utils.solve(challenges.loginAmyChallenge)
-    }
-    if (utils.notSolved(challenges.dlpPasswordSprayingChallenge) && req.body.email === 'J12934@' + config.get('application.domain') && req.body.password === '0Y8rMnww$*9VFYE§59-!Fg1L6t&6lB') {
-      utils.solve(challenges.dlpPasswordSprayingChallenge)
-    }
-    if (utils.notSolved(challenges.oauthUserPasswordChallenge) && req.body.email === 'bjoern.kimminich@googlemail.com' && req.body.password === 'bW9jLmxpYW1lbGdvb2dAaGNpbmltbWlrLm5yZW9qYg==') {
-      utils.solve(challenges.oauthUserPasswordChallenge)
-    }
-    models.sequelize.query('SELECT * FROM Users WHERE email = \'' + (req.body.email || '') + '\' AND password = \'' + insecurity.hash(req.body.password || '') + '\'', { model: models.User, plain: true })
+    verifyPreLoginChallenges(req)
+    models.sequelize.query(`SELECT * FROM Users WHERE email = '${req.body.email || ''}' AND password = '${insecurity.hash(req.body.password || '')}' AND deletedAt IS NULL`, { model: models.User, plain: true })
       .then((authenticatedUser) => {
         let user = utils.queryResultToJson(authenticatedUser)
-
         const rememberedEmail = insecurity.userEmailFrom(req)
         if (rememberedEmail && req.body.oauth) {
           models.User.findOne({ where: { email: rememberedEmail } }).then(rememberedUser => {
             user = utils.queryResultToJson(rememberedUser)
-            if (utils.notSolved(challenges.loginCisoChallenge) && user.data.id === users.ciso.id) {
-              utils.solve(challenges.loginCisoChallenge)
-            }
+            utils.solveIf(challenges.loginCisoChallenge, () => { return user.data.id === users.ciso.id })
             afterLogin(user, res, next)
           })
         } else if (user.data && user.data.id && user.data.totpSecret !== '') {
           res.status(401).json({
-            status: 'totp_token_requried',
+            status: 'totp_token_required',
             data: {
               tmpToken: insecurity.authorize({
                 userId: user.data.id,
@@ -70,10 +49,33 @@ module.exports = function login () {
         } else if (user.data && user.data.id) {
           afterLogin(user, res, next)
         } else {
-          res.status(401).send('Invalid email or password.')
+          res.status(401).send(res.__('Invalid email or password.'))
         }
       }).catch(error => {
         next(error)
       })
+  }
+
+  function verifyPreLoginChallenges (req) {
+    utils.solveIf(challenges.weakPasswordChallenge, () => { return req.body.email === 'admin@' + config.get('application.domain') && req.body.password === 'admin123' })
+    utils.solveIf(challenges.loginSupportChallenge, () => { return req.body.email === 'support@' + config.get('application.domain') && req.body.password === 'J6aVjTgOpRs$?5l+Zkq2AYnCE@RF§P' })
+    utils.solveIf(challenges.loginRapperChallenge, () => { return req.body.email === 'mc.safesearch@' + config.get('application.domain') && req.body.password === 'Mr. N00dles' })
+    utils.solveIf(challenges.loginAmyChallenge, () => { return req.body.email === 'amy@' + config.get('application.domain') && req.body.password === 'K1f.....................' })
+    utils.solveIf(challenges.dlpPasswordSprayingChallenge, () => { return req.body.email === 'J12934@' + config.get('application.domain') && req.body.password === '0Y8rMnww$*9VFYE§59-!Fg1L6t&6lB' })
+    utils.solveIf(challenges.oauthUserPasswordChallenge, () => { return req.body.email === 'bjoern.kimminich@gmail.com' && req.body.password === 'bW9jLmxpYW1nQGhjaW5pbW1pay5ucmVvamI=' })
+  }
+
+  function verifyPostLoginChallenges (user) {
+    utils.solveIf(challenges.loginAdminChallenge, () => { return user.data.id === users.admin.id })
+    utils.solveIf(challenges.loginJimChallenge, () => { return user.data.id === users.jim.id })
+    utils.solveIf(challenges.loginBenderChallenge, () => { return user.data.id === users.bender.id })
+    utils.solveIf(challenges.ghostLoginChallenge, () => { return user.data.id === users.chris.id })
+    if (utils.notSolved(challenges.ephemeralAccountantChallenge) && user.data.email === 'acc0unt4nt@' + config.get('application.domain') && user.data.role === 'accounting') {
+      models.User.count({ where: { email: 'acc0unt4nt@' + config.get('application.domain') } }).then(count => {
+        if (count === 0) {
+          utils.solve(challenges.ephemeralAccountantChallenge)
+        }
+      })
+    }
   }
 }

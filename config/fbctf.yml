@@ -1,9 +1,14 @@
 application:
   logo: JuiceShopCTF_Logo.png
   favicon: favicon_ctf.ico
-  showChallengeHints: false
   showVersionNumber: false
-  gitHubRibbon: false
+  showGitHubLinks: false
+  welcomeBanner:
+    showOnFirstStart: false
+challenges:
+  showHints: false
+hackingInstructor:
+  isEnabled: false
 ctf:
   showFlagsInNotifications: true
   showCountryDetailsInNotifications: both
@@ -32,10 +37,10 @@ ctf:
     reflectedXssChallenge:
       name: Uruguay
       code: UY
-    persistedXssChallengeUser:
+    persistedXssUserChallenge:
       name: Myanmar
       code: MM
-    persistedXssChallengeFeedback:
+    persistedXssFeedbackChallenge:
       name: Costa Rica
       code: CR
     restfulXssChallenge:
@@ -53,7 +58,7 @@ ctf:
     forgedFeedbackChallenge:
       name: Korea (Democratic People's Republic of)
       code: KP
-    redirectGratipayChallenge:
+    redirectCryptoCurrencyChallenge:
       name: Korea
       code: KR
     redirectChallenge:
@@ -167,10 +172,10 @@ ctf:
     typosquattingAngularChallenge:
       name: Senegal
       code: SN
-    jwtTier1Challenge:
+    jwtUnsignedChallenge:
       name: New Zealand
       code: NZ
-    jwtTier2Challenge:
+    jwtForgedChallenge:
       name: Mongolia
       code: MN
     misplacedSignatureFileChallenge:
@@ -245,9 +250,6 @@ ctf:
     videoXssChallenge:
       name: Pakistan
       code: PK
-    recyclesMissingItemChallenge:
-      name: Uganda
-      code: UG
     twoFactorAuthUnsafeSecretStorageChallenge:
       name: Sweden
       code: SE
@@ -263,3 +265,33 @@ ctf:
     passwordRepeatChallenge:
       name: Guyana
       code: GY
+    dataExportChallenge:
+      name: Cambodia
+      code: CB
+    ghostLoginChallenge:
+      name: Taiwan
+      code: TW
+    dbSchemaChallenge:
+      name: Brunei
+      code: BN
+    ephemeralAccountantChallenge:
+      name: Denmark
+      code: DK
+    missingEncodingChallenge:
+      name: Armenia
+      code: AM
+    svgInjectionChallenge:
+      name: Tunisia
+      code: TN
+    exposedMetricsChallenge:
+      name: Japan
+      code: JP
+    freeDeluxeChallenge:
+      name: Vietnam
+      code: VN
+    csrfChallenge:
+      name: Luxembourg
+      code: LU
+    xssBonusChallenge:
+      name: Ethiopia
+      code: ET

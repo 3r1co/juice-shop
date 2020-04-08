@@ -1,10 +1,15 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 const models = require('../models/index')
 const utils = require('../lib/utils')
 
 exports.sequelizeVulnerabilityChallenge = () => (req, res) => {
   models.Recycle.findAll({
     where: {
-      id: JSON.parse(req.params['id'])
+      id: JSON.parse(req.params.id)
     }
   }).then((Recycle) => {
     return res.send(utils.queryResultToJson(Recycle))
@@ -12,6 +17,6 @@ exports.sequelizeVulnerabilityChallenge = () => (req, res) => {
 }
 
 exports.blockRecycleItems = () => (req, res) => {
-  let errMsg = { err: 'Sorry, this endpoint is not supported.' }
+  const errMsg = { err: 'Sorry, this endpoint is not supported.' }
   return res.send(utils.queryResultToJson(errMsg))
 }

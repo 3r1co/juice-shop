@@ -1,5 +1,11 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 const frisby = require('frisby')
 const Joi = frisby.Joi
+const utils = require('../../lib/utils')
 const insecurity = require('../../lib/insecurity')
 const config = require('config')
 
@@ -14,7 +20,7 @@ const tamperingProductId = ((() => {
 
 const API_URL = 'http://localhost:3000/api'
 
-const authHeader = { 'Authorization': 'Bearer ' + insecurity.authorize(), 'content-type': 'application/json' }
+const authHeader = { Authorization: 'Bearer ' + insecurity.authorize(), 'content-type': 'application/json' }
 const jsonHeader = { 'content-type': 'application/json' }
 
 describe('/api/Products', () => {
@@ -27,6 +33,7 @@ describe('/api/Products', () => {
         name: Joi.string(),
         description: Joi.string(),
         price: Joi.number(),
+        deluxePrice: Joi.number(),
         image: Joi.string()
       })
   })
@@ -41,19 +48,21 @@ describe('/api/Products', () => {
       .expect('status', 401)
   })
 
-  it('POST new product does not filter XSS attacks', () => {
-    return frisby.post(API_URL + '/Products', {
-      headers: authHeader,
-      body: {
-        name: 'XSS Juice (42ml)',
-        description: '<iframe src="javascript:alert(`xss`)">',
-        price: 9999.99,
-        image: 'xss3juice.jpg'
-      }
+  if (!utils.disableOnContainerEnv()) {
+    it('POST new product does not filter XSS attacks', () => {
+      return frisby.post(API_URL + '/Products', {
+        headers: authHeader,
+        body: {
+          name: 'XSS Juice (42ml)',
+          description: '<iframe src="javascript:alert(`xss`)">',
+          price: 9999.99,
+          image: 'xss3juice.jpg'
+        }
+      })
+        .expect('header', 'content-type', /application\/json/)
+        .expect('json', 'data', { description: '<iframe src="javascript:alert(`xss`)">' })
     })
-      .expect('header', 'content-type', /application\/json/)
-      .expect('json', 'data', { description: '<iframe src="javascript:alert(`xss`)">' })
-  })
+  }
 })
 
 describe('/api/Products/:id', () => {
@@ -66,6 +75,7 @@ describe('/api/Products/:id', () => {
         name: Joi.string(),
         description: Joi.string(),
         price: Joi.number(),
+        deluxePrice: Joi.number(),
         image: Joi.string(),
         createdAt: Joi.string(),
         updatedAt: Joi.string()

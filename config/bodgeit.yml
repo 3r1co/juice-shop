@@ -4,18 +4,22 @@ application:
   logo: 'http://www.userlogos.org/files/logos/inductiveload/Google%20Code.png'
   favicon: 'https://www.shareicon.net/download/2016/08/13/808555_media.ico'
   theme: indigo-pink
-  gitHubRibbon: true
-  twitterUrl: null
-  facebookUrl: null
-  slackUrl: null
-  redditUrl: null
-  pressKitUrl: null
-  planetOverlayMap: 'http://www.userlogos.org/files/logos/inductiveload/Google%20Code.png'
-  planetName: Bodgiton VI
+  showGitHubLinks: true
+  altcoinName: Bodgecoin
+  privacyContactEmail: 'donotreply@thebodgeitstore.com'
+  customMetricsPrefix: bodgeit
+  social:
+    twitterUrl: null
+    facebookUrl: null
+    slackUrl: null
+    redditUrl: null
+    pressKitUrl: null
+    questionnaireUrl: null
   recyclePage:
     topProductImage: undefined.png
     bottomProductImage: thingie1.jpg
-  altcoinName: Bodgecoin
+  welcomeBanner:
+    showOnFirstStart: false
   cookieConsent:
     backgroundColor: '#000000'
     textColor: '#ffffff'
@@ -25,10 +29,16 @@ application:
     dismissText: 'Bodge it!'
     linkText: 'Lega-what?'
     linkUrl: 'https://github.com/psiinon/bodgeit'
-  privacyContactEmail: 'donotreply@thebodgeitstore.com'
   securityTxt:
     contact: 'mailto:donotreply@thebodgeitstore.com'
     encryption: ~
+  easterEggPlanet:
+    name: Bodgiton VI
+    overlayMap: 'http://www.userlogos.org/files/logos/inductiveload/Google%20Code.png'
+challenges:
+  xssBonusPayload: '<iframe width="560" height="315" src="https://www.youtube.com/embed/DJmEwkz6DN0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
+hackingInstructor:
+  avatarImage: 'https://ph-files.imgix.net/901876fb-f043-45bb-bfc2-bea8f477e533?auto=format&auto=compress&codec=mozjpeg&cs=strip&w=80&h=80&fit=crop'
 products:
   -
     name: 'Basic Widget'
@@ -171,3 +181,4 @@ products:
     name: Whatnot
     description: ' dohxt yhi    ldhibm yybxxtq pumknbc g odehnty oo qlhgax vave wjjqhjc cfigp  jlb rijr.'
     price: 2.68
+memories: []

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2014-2020 Bjoern Kimminich.
+ * SPDX-License-Identifier: MIT
+ */
+
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing'
 import { fakeAsync, inject, TestBed, tick } from '@angular/core/testing'
 
@@ -18,7 +23,7 @@ describe('CaptchaService', () => {
 
   it('should get captcha directly from the rest api', inject([CaptchaService, HttpTestingController],
     fakeAsync((service: CaptchaService, httpMock: HttpTestingController) => {
-      let res
+      let res: any
       service.getCaptcha().subscribe((data) => res = data)
       const req = httpMock.expectOne('http://localhost:3000/rest/captcha/')
       req.flush('apiResponse')
