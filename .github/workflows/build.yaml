@@ -16,9 +16,9 @@ jobs:
  
     steps:
     - uses: actions/checkout@v2
-    - uses: sfdx-actions/setup-pmd@v1
-    - name: run-pmd
-      run: pmd -d . -R category/ecmascript/bestpractices.xml -f text
+    #- uses: sfdx-actions/setup-pmd@v1
+    #- name: run-pmd
+    #  run: pmd -d . -R category/ecmascript/bestpractices.xml -f text
     - name: build-push
       uses: docker/build-push-action@v1
       with:
