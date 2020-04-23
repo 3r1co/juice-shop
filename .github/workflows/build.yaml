@@ -21,6 +21,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    - uses: sburris/dependency-check-action@master
+      with:
+        Project-Name: JuiceShop
     - name: build-push
       uses: docker/build-push-action@v1
       with:
